@@ -1,0 +1,314 @@
+/* ============================================
+   SUBAH 6 BAJE CHAI — Ambient Animations
+   Subtle, calm, nostalgic effects
+   ============================================ */
+
+/* ---- Film Grain Overlay ---- */
+.film-grain {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-grain);
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+}
+
+.film-grain::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: grainShift 0.8s steps(4) infinite;
+}
+
+@keyframes grainShift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-5%, -5%); }
+  50% { transform: translate(5%, -10%); }
+  75% { transform: translate(-10%, 5%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ---- Steam Effect ---- */
+.steam-container {
+  position: fixed;
+  bottom: calc(var(--player-height) + 20px);
+  left: 10%;
+  z-index: var(--z-atmosphere);
+  pointer-events: none;
+  width: 60px;
+  height: 120px;
+  opacity: 0.25;
+}
+
+.steam-wisp {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(
+    to top,
+    rgba(245, 230, 211, 0.4),
+    rgba(245, 230, 211, 0)
+  );
+  border-radius: 50%;
+  filter: blur(3px);
+}
+
+.steam-wisp:nth-child(1) {
+  left: 15px;
+  animation: steamRise 4s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.steam-wisp:nth-child(2) {
+  left: 30px;
+  animation: steamRise 5s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
+
+.steam-wisp:nth-child(3) {
+  left: 45px;
+  animation: steamRise 4.5s ease-in-out infinite;
+  animation-delay: 2.5s;
+}
+
+@keyframes steamRise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scaleX(1) rotate(0deg);
+  }
+  20% {
+    opacity: 0.6;
+  }
+  60% {
+    opacity: 0.3;
+    transform: translateY(-60px) scaleX(2) rotate(5deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-110px) scaleX(3) rotate(-3deg);
+  }
+}
+
+/* ---- Dust Particles ---- */
+.dust-container {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-grain);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.dust-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: var(--color-golden-light);
+  border-radius: var(--radius-full);
+  opacity: 0;
+}
+
+.dust-particle:nth-child(1) {
+  top: 20%;
+  left: 30%;
+  animation: dustFloat 12s ease-in-out infinite;
+}
+
+.dust-particle:nth-child(2) {
+  top: 45%;
+  left: 60%;
+  animation: dustFloat 15s ease-in-out 2s infinite;
+}
+
+.dust-particle:nth-child(3) {
+  top: 65%;
+  left: 20%;
+  animation: dustFloat 10s ease-in-out 4s infinite;
+}
+
+.dust-particle:nth-child(4) {
+  top: 30%;
+  left: 80%;
+  animation: dustFloat 14s ease-in-out 6s infinite;
+}
+
+.dust-particle:nth-child(5) {
+  top: 75%;
+  left: 50%;
+  animation: dustFloat 11s ease-in-out 3s infinite;
+}
+
+.dust-particle:nth-child(6) {
+  top: 15%;
+  left: 70%;
+  animation: dustFloat 13s ease-in-out 7s infinite;
+}
+
+@keyframes dustFloat {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  15% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.2;
+    transform: translate(30px, -40px);
+  }
+  85% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-20px, -80px);
+  }
+}
+
+/* ---- Subtle Tube Light Flicker ---- */
+.flicker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-grain) - 1);
+  pointer-events: none;
+  background: transparent;
+  animation: tubeFlicker 8s ease-in-out infinite;
+}
+
+@keyframes tubeFlicker {
+  0%, 100% { opacity: 0; }
+  47% { opacity: 0; }
+  48% { opacity: 0.015; background: rgba(255, 250, 230, 0.015); }
+  49% { opacity: 0; }
+  50% { opacity: 0.01; background: rgba(255, 250, 230, 0.01); }
+  51% { opacity: 0; }
+}
+
+/* ---- Waveform Visualizer Bars ---- */
+.visualizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 30px;
+  padding: 0 var(--space-xs);
+}
+
+.visualizer-bar {
+  width: 3px;
+  background: var(--color-golden);
+  border-radius: 1px 1px 0 0;
+  transition: height 0.15s ease;
+  min-height: 2px;
+}
+
+.visualizer.playing .visualizer-bar {
+  animation: waveformBounce 0.8s ease-in-out infinite alternate;
+}
+
+.visualizer-bar:nth-child(1) { animation-delay: 0s; }
+.visualizer-bar:nth-child(2) { animation-delay: 0.1s; }
+.visualizer-bar:nth-child(3) { animation-delay: 0.2s; }
+.visualizer-bar:nth-child(4) { animation-delay: 0.05s; }
+.visualizer-bar:nth-child(5) { animation-delay: 0.15s; }
+.visualizer-bar:nth-child(6) { animation-delay: 0.25s; }
+.visualizer-bar:nth-child(7) { animation-delay: 0.08s; }
+.visualizer-bar:nth-child(8) { animation-delay: 0.18s; }
+.visualizer-bar:nth-child(9) { animation-delay: 0.12s; }
+.visualizer-bar:nth-child(10) { animation-delay: 0.22s; }
+.visualizer-bar:nth-child(11) { animation-delay: 0.03s; }
+.visualizer-bar:nth-child(12) { animation-delay: 0.13s; }
+
+@keyframes waveformBounce {
+  0% {
+    height: 4px;
+    opacity: 0.5;
+  }
+  100% {
+    height: var(--bar-max-height, 22px);
+    opacity: 0.9;
+  }
+}
+
+.visualizer.paused .visualizer-bar {
+  height: 3px !important;
+  animation: none;
+  opacity: 0.3;
+  transition: all 0.5s ease;
+}
+
+/* ---- ON AIR Pulse ---- */
+.on-air-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #c0392b;
+  border-radius: var(--radius-full);
+  margin-right: var(--space-xs);
+  animation: onAirPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 6px rgba(192, 57, 43, 0.6);
+}
+
+@keyframes onAirPulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 6px rgba(192, 57, 43, 0.6);
+  }
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 12px rgba(192, 57, 43, 0.3);
+  }
+}
+
+.on-air-dot.paused {
+  animation: none;
+  opacity: 0.3;
+  background: var(--color-slate);
+  box-shadow: none;
+}
+
+/* ---- Cassette Reel Animation ---- */
+.cassette-reel {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-golden);
+  border-radius: var(--radius-full);
+  position: relative;
+  opacity: 0.5;
+}
+
+.cassette-reel::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--color-golden);
+  border-radius: var(--radius-full);
+}
+
+.cassette-reel.spinning {
+  animation: reelSpin 3s linear infinite;
+}
+
+@keyframes reelSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Reduced Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .film-grain,
+  .steam-container,
+  .dust-container,
+  .flicker-overlay {
+    display: none !important;
+  }
+
+  .visualizer-bar,
+  .on-air-dot,
+  .cassette-reel {
+    animation: none !important;
+  }
+}

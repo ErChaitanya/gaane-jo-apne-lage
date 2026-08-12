@@ -1,0 +1,477 @@
+/* ============================================
+   SUBAH 6 BAJE CHAI — Vintage Radio Player
+   Semi-transparent glass-metal bottom bar
+   ============================================ */
+
+/* ---- Player Bar Container ---- */
+.player-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-player);
+  height: var(--player-height);
+  background: var(--overlay-glass);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border-top: var(--border-vintage);
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4),
+              inset 0 1px 0 rgba(212, 165, 116, 0.08);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-xl);
+  gap: var(--space-lg);
+  transform: translateY(100%);
+  transition: transform var(--transition-slow);
+}
+
+.player-bar.visible {
+  transform: translateY(0);
+}
+
+/* ---- Minimized State ---- */
+.player-bar.minimized {
+  height: 60px;
+  padding: 0 var(--space-md);
+}
+
+.player-bar.minimized .player-youtube-wrap,
+.player-bar.minimized .player-now-playing,
+.player-bar.minimized .player-song-artist,
+.player-bar.minimized .player-visualizer,
+.player-bar.minimized .player-station {
+  display: none !important;
+}
+
+.player-bar.minimized .player-controls #btn-timer,
+.player-bar.minimized .player-controls #btn-mode,
+.player-bar.minimized .player-controls #btn-prev,
+.player-bar.minimized .player-controls #btn-next,
+.player-bar.minimized .player-controls #btn-fav,
+.player-bar.minimized .player-controls #btn-watch-video {
+  display: none !important;
+}
+
+.player-bar.minimized .player-info {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.player-bar.minimized .player-song-title {
+  font-size: var(--text-base);
+}
+
+/* Make progress bar overlay the top of minimized player */
+.player-bar.minimized .player-progress-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  flex: none;
+  margin: 0;
+}
+
+.player-bar.minimized .player-progress-bar {
+  border-radius: 0;
+  height: 2px;
+}
+
+.player-bar.minimized .player-progress-times {
+  display: none;
+}
+
+/* ---- Vintage TV / YouTube Container ---- */
+.player-youtube-wrap {
+  flex-shrink: 0;
+  width: 120px;
+  height: 68px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #111;
+  border: 2px solid rgba(212, 165, 116, 0.25);
+  box-shadow: var(--shadow-inner), 0 0 10px rgba(0, 0, 0, 0.3);
+  position: relative;
+  transition: opacity var(--transition-fast);
+}
+
+.player-youtube-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.player-youtube-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ---- Song Info Section ---- */
+.player-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.player-now-playing {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--color-golden);
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.player-song-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-cream);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.player-song-artist {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-beige);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.btn-watch-video {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--color-golden);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  border: 1px solid rgba(212, 165, 116, 0.4);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.btn-watch-video:hover {
+  background: rgba(212, 165, 116, 0.1);
+  border-color: var(--color-golden);
+}
+
+/* ---- Progress Bar ---- */
+.player-progress-container {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 120px;
+}
+
+.player-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(212, 165, 116, 0.15);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: height var(--transition-fast);
+}
+
+.player-progress-bar:hover {
+  height: 6px;
+}
+
+.player-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-golden), var(--color-golden-light));
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.1s linear;
+  position: relative;
+}
+
+.player-progress-fill::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: var(--color-golden-light);
+  border-radius: var(--radius-full);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  box-shadow: 0 0 6px rgba(212, 165, 116, 0.5);
+}
+
+.player-progress-bar:hover .player-progress-fill::after {
+  opacity: 1;
+}
+
+.player-progress-times {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--color-beige);
+  opacity: 0.6;
+}
+
+/* ---- Controls ---- */
+.player-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.player-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-cream);
+  font-size: var(--text-base);
+  transition: all var(--transition-fast);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.player-btn:hover {
+  color: var(--color-golden);
+  background: rgba(212, 165, 116, 0.1);
+}
+
+.player-btn:focus-visible {
+  outline: 2px solid var(--color-golden);
+  outline-offset: 2px;
+}
+
+.player-btn.active {
+  color: var(--color-golden);
+}
+
+.player-btn:active {
+  transform: scale(0.9);
+}
+
+.player-btn-play {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid rgba(212, 165, 116, 0.4);
+  font-size: var(--text-lg);
+}
+
+.player-btn-play:hover {
+  border-color: var(--color-golden);
+  box-shadow: 0 0 12px rgba(212, 165, 116, 0.2);
+}
+
+/* ---- Station Badge in Player ---- */
+.player-station {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2xs);
+  text-align: right;
+  min-width: 0;
+}
+
+.player-station-name {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-golden);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.player-station-status {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--color-beige);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  opacity: 0.8;
+}
+
+/* ---- Visualizer in Player ---- */
+.player-visualizer {
+  flex-shrink: 0;
+}
+
+/* ---- Song List Toggle Button ---- */
+.player-songlist-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-beige);
+  font-size: var(--text-sm);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  background: transparent;
+  border: var(--border-vintage);
+  flex-shrink: 0;
+}
+
+.player-songlist-toggle:hover {
+  color: var(--color-golden);
+  border-color: var(--color-golden);
+}
+
+.player-songlist-toggle.active {
+  color: var(--color-golden);
+  background: rgba(212, 165, 116, 0.12);
+  border-color: var(--color-golden);
+}
+
+/* ============================================
+   Responsive Player
+   ============================================ */
+
+@media (max-width: 1200px) {
+  .player-bar {
+    padding: 0 var(--space-lg);
+    gap: var(--space-md);
+  }
+
+  .player-youtube-wrap {
+    width: 100px;
+    height: 56px;
+  }
+
+  .player-station-name {
+    max-width: 140px;
+  }
+}
+
+@media (max-width: 900px) {
+  .player-youtube-wrap {
+    display: none;
+  }
+
+  .player-visualizer {
+    display: none;
+  }
+
+  .player-station {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .player-bar {
+    min-height: var(--player-height-mobile);
+    flex-wrap: wrap;
+    padding: var(--space-md);
+    gap: var(--space-sm);
+  }
+
+  .player-youtube-wrap {
+    display: block !important;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-sm);
+    order: 1;
+  }
+
+  .player-info {
+    order: 2;
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  .player-songlist-toggle {
+    order: 3;
+    width: 44px;
+    height: 44px;
+  }
+
+  .player-controls {
+    order: 4;
+    flex-basis: 100%;
+    justify-content: center;
+    gap: var(--space-lg);
+    margin-top: var(--space-xs);
+  }
+
+  .player-progress-container {
+    order: 5;
+    flex-basis: 100%;
+    min-width: unset;
+    margin-top: var(--space-xs);
+  }
+
+  .player-now-playing {
+    font-size: 0.55rem;
+  }
+
+  .player-song-title {
+    font-size: var(--text-base);
+  }
+
+  .player-song-artist {
+    font-size: var(--text-xs);
+    white-space: normal; /* allow wrap if needed */
+  }
+
+  .player-btn {
+    width: 44px;
+    height: 44px;
+    font-size: var(--text-lg);
+  }
+
+  .player-btn-play {
+    width: 54px;
+    height: 54px;
+    font-size: var(--text-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .player-bar {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .player-controls {
+    gap: var(--space-md);
+  }
+}
+
+/* ============================================
+   Focus Mode Adjustments (handled here & index.css)
+   ============================================ */
+body.focus-mode .player-bar {
+  /* Inherits from .minimized class dynamically added in app.js if needed, but we can enforce it */
+}

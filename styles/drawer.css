@@ -1,0 +1,302 @@
+/* ============================================
+   SUBAH 6 BAJE CHAI — Unified Right Drawer
+   Stations, Library, and Current Playlist
+   ============================================ */
+
+/* ---- Main Drawer Shell ---- */
+.right-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 360px;
+  z-index: var(--z-stations);
+  background: var(--overlay-glass);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  border-left: var(--border-vintage);
+  box-shadow: -8px 0 30px rgba(0, 0, 0, 0.4);
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Make room for player at bottom (using padding instead of bottom to allow full height drawer if player minimized) */
+.right-drawer-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: var(--player-height);
+  transition: padding-bottom 0.3s ease;
+}
+
+.right-drawer.open {
+  transform: translateX(0);
+}
+
+/* Close Button Header */
+.drawer-header {
+  padding: var(--space-md) var(--space-xl);
+  display: flex;
+  justify-content: flex-end;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.1);
+  flex-shrink: 0;
+}
+
+.drawer-close {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-golden);
+  font-size: var(--text-base);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: rgba(212, 165, 116, 0.05);
+  border: var(--border-vintage);
+}
+
+.drawer-close:hover {
+  background: rgba(212, 165, 116, 0.15);
+  transform: scale(1.05);
+}
+
+/* Scrollable Content */
+.drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-md) 0 var(--space-xl) 0;
+}
+
+/* Section Header */
+.drawer-section-header {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--color-golden);
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  margin: var(--space-lg) var(--space-xl) var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid rgba(212, 165, 116, 0.15);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.drawer-section-header .dial-icon {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--color-golden);
+  border-radius: var(--radius-full);
+  position: relative;
+}
+
+.drawer-section-header .dial-icon::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 4px;
+  background: var(--color-golden);
+}
+
+/* ---- Station / Library Cards ---- */
+.drawer-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: 0 var(--space-xl);
+}
+
+.drawer-card {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  background: rgba(212, 165, 116, 0.02);
+}
+
+.drawer-card:hover {
+  border-color: rgba(212, 165, 116, 0.2);
+  background: rgba(212, 165, 116, 0.05);
+}
+
+.drawer-card.active {
+  border-color: rgba(212, 165, 116, 0.4);
+  background: rgba(212, 165, 116, 0.1);
+}
+
+.drawer-card.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  bottom: 15%;
+  width: 2px;
+  background: var(--color-golden);
+  border-radius: 1px;
+}
+
+.drawer-card-emoji {
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-xs);
+  display: block;
+}
+
+.drawer-card-title {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-cream);
+  margin-bottom: var(--space-2xs);
+}
+
+.drawer-card-desc {
+  font-family: var(--font-hindi);
+  font-size: var(--text-sm);
+  color: var(--color-beige);
+  opacity: 0.7;
+}
+
+/* ---- Song List Row ---- */
+.drawer-song-row {
+  display: flex;
+  align-items: center;
+  padding: var(--space-sm) var(--space-xl);
+  gap: var(--space-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border-bottom: 1px solid rgba(212, 165, 116, 0.04);
+}
+
+.drawer-song-row:hover {
+  background: rgba(212, 165, 116, 0.06);
+}
+
+.drawer-song-row.playing {
+  background: rgba(212, 165, 116, 0.1);
+}
+
+.drawer-song-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.drawer-song-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.drawer-song-title {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-cream);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-song-row.playing .drawer-song-title {
+  color: var(--color-golden-light);
+}
+
+.drawer-song-artist {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--color-beige);
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-song-play {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-golden);
+  font-size: var(--text-xs);
+  opacity: 0.5;
+  background: rgba(212, 165, 116, 0.1);
+  border: none;
+}
+
+.drawer-song-row:hover .drawer-song-play {
+  opacity: 1;
+}
+
+/* Floating Toggle Button (When Closed) */
+.drawer-toggle {
+  position: fixed;
+  top: var(--space-xl);
+  right: var(--space-lg);
+  z-index: calc(var(--z-stations) - 1);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--overlay-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--border-vintage);
+  color: var(--color-golden);
+  font-size: var(--text-xl);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-soft);
+}
+
+.drawer-toggle:hover {
+  background: rgba(212, 165, 116, 0.15);
+  transform: scale(1.05);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .right-drawer {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    height: 85vh; /* bottom sheet */
+    border-left: none;
+    border-top: var(--border-vintage);
+    border-top-left-radius: var(--radius-xl);
+    border-top-right-radius: var(--radius-xl);
+    transform: translateY(100%);
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .right-drawer-inner {
+    padding-bottom: 0; /* no need to avoid player on mobile since drawer is on top */
+  }
+
+  .right-drawer.open {
+    transform: translateY(0);
+  }
+}

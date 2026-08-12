@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+  <!-- Primary Meta -->
+  <title>Gaane Jo Apne Lage — Radio for Slow Moments</title>
+  <meta name="description" content="Gaane Jo Apne Lage — a nostalgic Indian radio for slow moments, old songs, ghazals and peaceful chai.">
+  <meta name="theme-color" content="#2a1a0e">
+  <meta name="color-scheme" content="dark">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Gaane Jo Apne Lage — Radio for Slow Moments">
+  <meta property="og:description" content="Gaane Jo Apne Lage — a nostalgic Indian radio for slow moments, old songs, ghazals and peaceful chai.">
+  <meta property="og:image" content="assets/hero.jpg">
+  <meta property="og:site_name" content="Gaane Jo Apne Lage">
+
+  <!-- Twitter/X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Gaane Jo Apne Lage — Radio for Slow Moments">
+  <meta name="twitter:description" content="A nostalgic Indian morning radio for slow mornings, old songs, ghazals and peaceful chai.">
+  <meta name="twitter:image" content="assets/hero.jpg">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles/index.css">
+  <link rel="stylesheet" href="styles/animations.css">
+  <link rel="stylesheet" href="styles/player.css">
+  <link rel="stylesheet" href="styles/drawer.css">
+  <link rel="stylesheet" href="styles/atmosphere.css">
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.youtube.com">
+  <link rel="preconnect" href="https://i.ytimg.com">
+</head>
+<body>
+
+  <!-- ====== HERO BACKGROUND ====== -->
+  <div class="hero-background" id="bg-layer-1" aria-hidden="true"></div>
+  <div class="hero-background" id="bg-layer-2" aria-hidden="true" style="opacity: 0;"></div>
+  <div class="hero-overlay" aria-hidden="true"></div>
+
+  <!-- ====== SPLASH / START SCREEN ====== -->
+  <div class="splash-screen" id="splash-screen" role="dialog" aria-label="Start radio">
+    <div class="splash-brand">
+      <h1 class="splash-brand-name">
+        <span class="sun-emoji">☀️</span> GAANE JO APNE LAGE
+      </h1>
+      <p class="splash-tagline">Radio for Slow Moments</p>
+    </div>
+    <button class="start-button" id="start-btn" aria-label="Start Radio">
+      <span class="play-icon">▶</span>
+      <span>START RADIO</span>
+    </button>
+  </div>
+
+  <!-- ====== TUNING OVERLAY ====== -->
+  <div class="tuning-overlay" id="tuning-overlay" aria-hidden="true">
+    <span class="tuning-text">TUNING…</span>
+  </div>
+
+  <!-- ====== HEADER CONTROLS ====== -->
+  <div style="position: fixed; top: var(--space-xl); right: var(--space-xl); z-index: 100; display: flex; gap: var(--space-sm);" id="header-controls">
+    <button id="btn-focus" style="
+      font-family: var(--font-mono); 
+      font-size: var(--text-xs); 
+      color: var(--color-golden);
+      background: var(--overlay-glass);
+      border: var(--border-vintage);
+      padding: var(--space-xs) var(--space-md);
+      border-radius: var(--radius-xl);
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      letter-spacing: 0.1em;
+    " aria-label="Enter Focus Mode">⛶ FOCUS</button>
+  </div>
+  
+  <button id="btn-exit-focus" style="
+    display: none;
+    position: fixed;
+    top: var(--space-xl);
+    right: var(--space-xl);
+    z-index: 110;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-golden);
+    background: rgba(25, 18, 12, 0.95);
+    border: 1px solid var(--color-golden);
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-xl);
+    cursor: pointer;
+    letter-spacing: 0.1em;
+  ">EXIT FOCUS</button>
+
+  <!-- ====== MAIN CONTENT ====== -->
+  <main class="main-content" id="main-content">
+    <!-- Brand (visible after splash hides) -->
+    <header class="brand">
+      <h2 class="brand-name">
+        <span class="sun-emoji">☀️</span> GAANE JO APNE LAGE
+      </h2>
+      <p class="brand-tagline">Radio for Slow Moments</p>
+    </header>
+  </main>
+
+  <!-- ====== UNIFIED RIGHT DRAWER ====== -->
+  <button class="drawer-toggle" id="drawer-toggle" aria-label="Toggle drawer">≡</button>
+  <aside class="right-drawer" id="right-drawer" role="region" aria-label="Rotations and Library"></aside>
+
+  <!-- ====== PLAYER BAR ====== -->
+  <div class="player-bar" id="player-bar" role="region" aria-label="Music player"></div>
+
+  <!-- ====== FOOTER ====== -->
+  <footer style="
+    position: fixed;
+    bottom: calc(var(--player-height) + 5px);
+    right: 20px;
+    z-index: 15;
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    color: rgba(212, 165, 116, 0.3);
+    text-align: right;
+    pointer-events: none;
+    letter-spacing: 0.1em;
+    line-height: 1.6;
+    display: block;
+  " id="footer-info" aria-label="Footer">
+    <div>Music is played through third-party YouTube embeds. All rights remain with the respective copyright owners.</div>
+  </footer>
+
+  <!-- ====== APP SCRIPT ====== -->
+  <script type="module" src="app.js"></script>
+
+</body>
+</html>
