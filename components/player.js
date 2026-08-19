@@ -108,7 +108,7 @@ export class Player {
       </div>
 
       <!-- Layout Toggles -->
-      <div style="display: flex; gap: var(--space-xs); flex-shrink: 0; align-items: center;">
+      <div class="player-songlist-toggle-wrap" style="display: flex; gap: var(--space-xs); flex-shrink: 0; align-items: center;">
         <button class="player-songlist-toggle" id="btn-songlist-toggle" aria-label="Open drawer" title="Drawer">☰</button>
         <button class="player-songlist-toggle" id="btn-minimize-toggle" aria-label="Minimize player" title="Minimize">⤓</button>
       </div>
@@ -194,6 +194,7 @@ export class Player {
     }
 
     this.yt.onPlay = async () => {
+      this.errorCount = 0; // reset on successful play
       this.isPlaying = true;
       this._updatePlayButton(true);
       this._updateStatus('playing');
@@ -234,14 +235,26 @@ export class Player {
       console.warn(`YouTube error ${errorCode} for song: ${this.songs[this.currentIndex]?.title}`);
       this._updateStatus('tuning');
       
+      const titleEl = this.bar.querySelector('#player-song-title');
+      if (titleEl) {
+        titleEl.textContent = "This song isn't available right now.";
+      }
+
       if (this.stopAfterCurrentSong) {
         // Do not auto skip if timer expired
         this.stopRadio();
         return;
       }
 
+      this.errorCount = (this.errorCount || 0) + 1;
+      if (this.errorCount > 5) {
+        console.warn('Too many consecutive errors, pausing radio.');
+        this.stopRadio();
+        return;
+      }
+
       // Auto-skip to next on error
-      setTimeout(() => this.next(true), 1500);
+      setTimeout(() => this.next(true), 2500);
     };
 
     this.yt.onProgress = (current, duration, progress) => {
@@ -551,10 +564,12 @@ export class Player {
       watchBtn.style.display = 'inline-block';
     }
 
+    const thumbUrl = song.thumbnail || `https://img.youtube.com/vi/${song.youtubeId}/hqdefault.jpg`;
+
     if (thumbEl) {
-      const thumbUrl = song.thumbnail || `https://img.youtube.com/vi/${song.youtubeId}/hqdefault.jpg`;
       thumbEl.src = thumbUrl;
       thumbEl.onload = () => thumbEl.style.opacity = '1';
+      thumbEl.onerror = () => { thumbEl.onerror = null; thumbEl.src = 'assets/hero.jpg'; thumbEl.style.opacity = '1'; };
     }
 
     if (favBtn) {
@@ -565,6 +580,25 @@ export class Player {
       } else {
         favBtn.textContent = '♡';
         favBtn.classList.remove('active');
+      }
+    }
+
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: song.title,
+          artist: song.artist,
+          artwork: [
+            { src: thumbUrl, sizes: '512x512', type: 'image/jpeg' }
+          ]
+        });
+
+        navigator.mediaSession.setActionHandler('play', () => this.togglePlay());
+        navigator.mediaSession.setActionHandler('pause', () => this.togglePlay());
+        navigator.mediaSession.setActionHandler('previoustrack', () => this.previous());
+        navigator.mediaSession.setActionHandler('nexttrack', () => this.next());
+      } catch (err) {
+        console.warn('Media Session API failed:', err);
       }
     }
   }

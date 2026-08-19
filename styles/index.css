@@ -228,6 +228,46 @@ img {
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
 
+/* ---- Header Controls & Focus Mode ---- */
+#header-controls {
+  position: fixed; 
+  top: var(--space-xl); 
+  right: calc(var(--space-lg) + 44px + var(--space-md)); 
+  z-index: 100; 
+  display: flex; 
+  gap: var(--space-sm);
+}
+
+#btn-focus, #btn-exit-focus, #btn-share {
+  font-family: var(--font-mono); 
+  font-size: var(--text-xs); 
+  color: var(--color-golden);
+  background: var(--overlay-glass);
+  border: var(--border-vintage);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  letter-spacing: 0.1em;
+  transition: all var(--transition-fast);
+}
+
+#btn-focus:hover, #btn-exit-focus:hover, #btn-share:hover {
+  background: rgba(212, 165, 116, 0.15);
+  transform: scale(1.05);
+}
+
+#btn-exit-focus {
+  display: none;
+  position: fixed;
+  top: var(--space-xl);
+  right: var(--space-xl);
+  z-index: 110;
+  background: rgba(25, 18, 12, 0.95);
+  border: 1px solid var(--color-golden);
+}
+
 /* ---- Splash / Start Screen ---- */
 .splash-screen {
   position: fixed;
@@ -464,6 +504,13 @@ img {
   .hero-background {
     background-position: 60% center;
     background-attachment: scroll;
+  }
+
+  #header-controls {
+    display: none !important;
+  }
+  #btn-focus-mobile {
+    display: block !important;
   }
 }
 

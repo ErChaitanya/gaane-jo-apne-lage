@@ -457,6 +457,58 @@
     height: 54px;
     font-size: var(--text-xl);
   }
+
+  /* Minimized state on mobile */
+  .player-bar.minimized {
+    min-height: unset;
+    height: 64px;
+    flex-wrap: nowrap;
+    padding: 0 var(--space-sm);
+  }
+
+  .player-bar.minimized .player-youtube-wrap {
+    display: none !important;
+  }
+
+  .player-bar.minimized .player-info {
+    order: 1;
+    margin-right: auto;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .player-bar.minimized .player-song-title {
+    font-size: var(--text-sm);
+  }
+
+  .player-bar.minimized .player-song-artist {
+    display: block !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .player-bar.minimized .player-controls {
+    order: 2;
+    flex-basis: auto;
+    margin-top: 0;
+    gap: 0;
+  }
+
+  /* Hide all controls except play in minimized mobile */
+  .player-bar.minimized .player-controls .player-btn:not(.player-btn-play) {
+    display: none !important;
+  }
+
+  .player-bar.minimized .player-controls .player-btn-play {
+    width: 44px;
+    height: 44px;
+    font-size: var(--text-lg);
+  }
+
+  .player-bar.minimized .player-songlist-toggle-wrap {
+    order: 3;
+  }
 }
 
 @media (max-width: 480px) {

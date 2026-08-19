@@ -1,0 +1,16 @@
+{
+  "name": "Gaane Jo Apne Lage",
+  "short_name": "Gaane",
+  "description": "Radio for slow moments, old songs, ghazals and peaceful chai.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#2a1a0e",
+  "theme_color": "#2a1a0e",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

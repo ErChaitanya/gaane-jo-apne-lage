@@ -65,9 +65,12 @@ class App {
     // Focus mode buttons
     const btnFocus = document.getElementById('btn-focus');
     const btnExitFocus = document.getElementById('btn-exit-focus');
+    const btnShare = document.getElementById('btn-share');
+    
     if (btnFocus) btnFocus.addEventListener('click', () => this.setFocusMode(true));
     if (btnExitFocus) btnExitFocus.addEventListener('click', () => this.setFocusMode(false));
-
+    if (btnShare) btnShare.addEventListener('click', () => this.shareStation(btnShare));
+    
     // Global keyboard shortcuts
     this._bindShortcuts();
   }
@@ -112,12 +115,16 @@ class App {
         onStationChange: (stationId) => this._onStationChange(stationId),
         onFavoritesClick: async () => {
           this.showingLibraryList = 'favorites';
+          this.drawer.callbacks.showingFavorites = true;
+          this.drawer.callbacks.showingRecent = false;
           const favs = await getFavorites();
           this.librarySongs = favs;
           this.drawer.loadPlaylist(favs);
         },
         onRecentlyPlayedClick: async () => {
           this.showingLibraryList = 'recent';
+          this.drawer.callbacks.showingFavorites = false;
+          this.drawer.callbacks.showingRecent = true;
           const recent = await getRecentlyPlayed();
           this.librarySongs = recent;
           this.drawer.loadPlaylist(recent);
@@ -137,6 +144,14 @@ class App {
     if (songListToggle) {
       songListToggle.addEventListener('click', () => {
         this.drawer.toggleDrawer();
+      });
+    }
+
+    const btnFocusMobile = document.getElementById('btn-focus-mobile');
+    if (btnFocusMobile) {
+      btnFocusMobile.addEventListener('click', () => {
+        this.drawer.close();
+        this.setFocusMode(true);
       });
     }
 
@@ -161,6 +176,8 @@ class App {
     await savePreference('lastStationId', station.id);
 
     // Update drawer UI
+    this.drawer.callbacks.showingFavorites = false;
+    this.drawer.callbacks.showingRecent = false;
     this.drawer.setActiveStation(station.id);
     this.drawer.loadPlaylist(station.songs);
     
@@ -268,6 +285,27 @@ class App {
       if (header) header.style.opacity = '1';
       if (controls) controls.style.display = 'flex';
       if (btnExitFocus) btnExitFocus.style.display = 'none';
+    }
+  }
+
+  async shareStation(btnShare) {
+    const url = window.location.href;
+    const title = this.currentStation ? `${this.currentStation.name} - Gaane Jo Apne Lage` : 'Gaane Jo Apne Lage';
+    const text = 'Listening to radio for slow moments.';
+
+    const originalText = btnShare.textContent;
+    btnShare.textContent = 'COPIED!';
+    setTimeout(() => { btnShare.textContent = originalText; }, 2000);
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url });
+      } catch (err) {
+        console.warn('Share failed:', err);
+        navigator.clipboard.writeText(url).catch(e => console.error(e));
+      }
+    } else {
+      navigator.clipboard.writeText(url).catch(e => console.error(e));
     }
   }
 

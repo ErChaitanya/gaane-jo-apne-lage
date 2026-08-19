@@ -137,7 +137,9 @@
   }
 
   .atmo-badge--onair {
-    top: var(--space-lg);
+    top: 110px;
+    left: var(--space-lg);
+    transform: none;
   }
 
   .morning-message {

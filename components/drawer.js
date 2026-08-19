@@ -23,8 +23,20 @@ export class RightDrawer {
   _build() {
     this.drawer.innerHTML = `
       <div class="right-drawer-inner">
-        <div class="drawer-header">
-          <button class="drawer-close" aria-label="Close drawer">✕</button>
+        <div class="drawer-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <button id="btn-focus-mobile" style="
+            display: none;
+            font-family: var(--font-mono); 
+            font-size: var(--text-xs); 
+            color: var(--color-golden);
+            background: transparent;
+            border: var(--border-vintage);
+            padding: var(--space-xs) var(--space-md);
+            border-radius: var(--radius-xl);
+            cursor: pointer;
+            letter-spacing: 0.1em;
+          " aria-label="Enter Focus Mode">⛶ FOCUS</button>
+          <button class="drawer-close" aria-label="Close drawer" style="margin-left: auto;">✕</button>
         </div>
         <div class="drawer-content">
           
@@ -160,7 +172,21 @@ export class RightDrawer {
     container.innerHTML = '';
     
     if (!songs || songs.length === 0) {
-      container.innerHTML = '<div style="padding: 1rem 2rem; color: var(--color-beige); opacity: 0.5;">No songs available</div>';
+      let msg = 'No songs available';
+      let sub = '';
+      if (this.callbacks.showingFavorites) {
+        msg = 'Abhi koi favourite nahi hai.';
+        sub = 'Jo gaane dil ko lage, yahan milenge.';
+      } else if (this.callbacks.showingRecent) {
+        msg = 'Abhi tak koi gaana nahi suna.';
+        sub = 'Pehle thodi chai pi lo, aur ek gaana lagao.';
+      }
+      container.innerHTML = `
+        <div style="padding: 2rem; text-align: center; color: var(--color-beige); opacity: 0.7;">
+          <div style="font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--color-golden);">${msg}</div>
+          <div style="font-family: var(--font-hindi); font-size: 0.9rem;">${sub}</div>
+        </div>
+      `;
       return;
     }
 
@@ -170,8 +196,12 @@ export class RightDrawer {
       if (i === this.currentIndex) row.classList.add('playing');
       row.setAttribute('tabindex', '0');
       
+      const thumbUrl = song.thumbnail || `https://img.youtube.com/vi/${song.youtubeId}/hqdefault.jpg`;
       row.innerHTML = `
-        <img src="${song.thumbnail}" class="drawer-song-thumb" alt="" loading="lazy">
+        <div class="playing-indicator">
+          <span></span><span></span><span></span>
+        </div>
+        <img src="${thumbUrl}" class="drawer-song-thumb" alt="" loading="lazy" onerror="this.onerror=null; this.src='assets/hero.jpg';">
         <div class="drawer-song-info">
           <div class="drawer-song-title">${song.title}</div>
           <div class="drawer-song-artist">${song.artist}</div>
