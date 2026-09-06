@@ -27,25 +27,7 @@ class App {
    * Initialize the app (called on DOMContentLoaded)
    */
   async init() {
-    // Initialize IndexedDB
-    await initDB();
-
-    // Determine which station to load
-    const urlStation = getStationFromURL();
-    const lastStationId = await getPreference('lastStationId');
-    const stationIdToLoad = urlStation || lastStationId;
-    
-    this.currentStation = stationIdToLoad 
-      ? (getStationById(stationIdToLoad) || getDefaultStation())
-      : getDefaultStation();
-
-    // Update page title
-    updatePageTitle(this.currentStation.name);
-
-    // Set initial background immediately behind splash screen
-    this._setBackground(this.currentStation.background || 'assets/hero.jpg');
-
-    // Set up the Start Radio button
+    // 1. Synchronous UI Setup - Ensure button is ALWAYS clickable
     const splashScreen = document.getElementById('splash-screen');
     const startBtn = document.getElementById('start-btn');
 
@@ -73,6 +55,31 @@ class App {
     
     // Global keyboard shortcuts
     this._bindShortcuts();
+
+    // 2. Synchronous Station Setup (Fallback)
+    const urlStation = getStationFromURL();
+    this.currentStation = urlStation ? (getStationById(urlStation) || getDefaultStation()) : getDefaultStation();
+    updatePageTitle(this.currentStation.name);
+    
+    try {
+      // 3. Asynchronous Setup
+      // Wrap DB in try/catch and timeout to prevent silent hangs
+      await Promise.race([
+        initDB(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("DB Timeout")), 3000))
+      ]);
+      
+      const lastStationId = await getPreference('lastStationId');
+      if (!urlStation && lastStationId) {
+        this.currentStation = getStationById(lastStationId) || getDefaultStation();
+        updatePageTitle(this.currentStation.name);
+      }
+    } catch (e) {
+      console.warn("Non-fatal init error:", e);
+    }
+
+    // Set initial background immediately behind splash screen
+    this._setBackground(this.currentStation.background || 'assets/hero.jpg');
   }
 
   /**
@@ -98,8 +105,14 @@ class App {
       onPlayStateChange: (isPlaying) => this._onPlayStateChange(isPlaying)
     });
     
-    // Restore preference
-    const mode = await getPreference('playbackMode', 'random');
+    // Restore preference safely
+    let mode = 'random';
+    try {
+      mode = await Promise.race([
+        getPreference('playbackMode', 'random'),
+        new Promise(resolve => setTimeout(() => resolve('random'), 500))
+      ]);
+    } catch(e) {}
     await this.player.setMode(mode);
 
     this.player.show();
@@ -117,17 +130,21 @@ class App {
           this.showingLibraryList = 'favorites';
           this.drawer.callbacks.showingFavorites = true;
           this.drawer.callbacks.showingRecent = false;
-          const favs = await getFavorites();
-          this.librarySongs = favs;
-          this.drawer.loadPlaylist(favs);
+          try {
+            const favs = await getFavorites();
+            this.librarySongs = favs;
+            this.drawer.loadPlaylist(favs);
+          } catch(e) { console.warn(e); }
         },
         onRecentlyPlayedClick: async () => {
           this.showingLibraryList = 'recent';
           this.drawer.callbacks.showingFavorites = false;
           this.drawer.callbacks.showingRecent = true;
-          const recent = await getRecentlyPlayed();
-          this.librarySongs = recent;
-          this.drawer.loadPlaylist(recent);
+          try {
+            const recent = await getRecentlyPlayed();
+            this.librarySongs = recent;
+            this.drawer.loadPlaylist(recent);
+          } catch(e) { console.warn(e); }
         },
         onSongSelect: (index) => {
           if (this.showingLibraryList) {
@@ -156,7 +173,11 @@ class App {
     }
 
     // Load the current station
-    await this._loadStation(this.currentStation);
+    try {
+      await this._loadStation(this.currentStation);
+    } catch(e) {
+      console.error("Error loading station:", e);
+    }
 
     // Show tuning overlay briefly for effect
     this._showTuning(600);
@@ -352,7 +373,9 @@ class App {
 }
 
 // ---- Boot ----
-document.addEventListener('DOMContentLoaded', () => {
-  const app = new App();
+const app = new App();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => app.init());
+} else {
   app.init();
-});
+}
