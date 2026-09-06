@@ -26,10 +26,6 @@ export class YouTubePlayer {
    * Load the YouTube IFrame API script
    * @returns {Promise} Resolves when API is ready
    */
-  /**
-   * Load the YouTube IFrame API script using privacy-enhanced domain
-   * @returns {Promise} Resolves when API is ready
-   */
   loadAPI() {
     return new Promise((resolve, reject) => {
       if (this.isAPILoaded && window.YT && window.YT.Player) {
@@ -38,7 +34,7 @@ export class YouTubePlayer {
       }
 
       // Check if script already exists
-      if (document.querySelector('script[src*="youtube-nocookie.com/iframe_api"]') || document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      if (document.querySelector('script[src*="youtube.com/iframe_api"]')) {
         const checkReady = setInterval(() => {
           if (window.YT && window.YT.Player) {
             clearInterval(checkReady);
@@ -55,9 +51,9 @@ export class YouTubePlayer {
         resolve();
       };
 
-      // Load the script from privacy-enhanced domain
+      // Load the standard YouTube IFrame API script
       const script = document.createElement('script');
-      script.src = 'https://www.youtube-nocookie.com/iframe_api';
+      script.src = 'https://www.youtube.com/iframe_api';
       script.onerror = () => reject(new Error('Failed to load YouTube API'));
       document.head.appendChild(script);
     });
@@ -77,17 +73,19 @@ export class YouTubePlayer {
       }
 
       this.player = new YT.Player(this.containerId, {
-        host: 'https://www.youtube-nocookie.com',
         height: '100%',
         width: '100%',
         videoId: videoId,
         playerVars: {
           autoplay: 1,
-          controls: 1,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
           modestbranding: 1,
           rel: 0,
-          fs: 0,
+          showinfo: 0,
           iv_load_policy: 3,
+          autohide: 1,
           playsinline: 1,
           enablejsapi: 1,
           origin: window.location.origin,
