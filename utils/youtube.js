@@ -95,6 +95,7 @@ export class YouTubePlayer {
           onReady: (event) => {
             this.isReady = true;
             this._startProgressTracking();
+            this._startAdGuardTimer();
             if (this.onReady) this.onReady(event);
             resolve();
           },
@@ -109,34 +110,70 @@ export class YouTubePlayer {
   }
 
   /**
-   * Check for mobile/embedded ad state and auto-bypass
+   * High-Frequency (100ms) Real-Time Ad-Blocker Guard
    */
   _checkAndSuppressAd() {
     if (!this.player || !this.isReady) return;
     try {
-      // YouTube IFrame API ad state checks
-      const isAd = (typeof this.player.getAdState === 'function' && this.player.getAdState() > 0) ||
-                   (typeof this.player.isAdPlaying === 'function' && this.player.isAdPlaying());
+      // 1. YouTube IFrame API explicit ad methods
+      const isAdState = (typeof this.player.getAdState === 'function' && this.player.getAdState() > 0) ||
+                        (typeof this.player.isAdPlaying === 'function' && this.player.isAdPlaying());
+      
+      // 2. Video metadata ad check
+      let isAdMeta = false;
+      if (typeof this.player.getVideoData === 'function') {
+        const data = this.player.getVideoData();
+        if (data && (data.isAd || data.ad || (data.author && data.author.toLowerCase().includes('ad')))) {
+          isAdMeta = true;
+        }
+      }
+
+      const isAd = isAdState || isAdMeta;
       
       if (isAd) {
-        // Mute ad audio and fast forward past the ad instantly
-        if (typeof this.player.mute === 'function') this.player.mute();
-        if (typeof this.player.setPlaybackRate === 'function') this.player.setPlaybackRate(16);
+        this.isSuppressingAd = true;
+        // Step 1: Mute ad audio immediately
+        if (typeof this.player.mute === 'function' && typeof this.player.isMuted === 'function' && !this.player.isMuted()) {
+          this.player.mute();
+        }
+        // Step 2: 16x playback speed boost
+        if (typeof this.player.setPlaybackRate === 'function') {
+          this.player.setPlaybackRate(16);
+        }
+        // Step 3: Playhead seek past ad block
         const duration = this.getDuration();
         if (duration > 0 && typeof this.player.seekTo === 'function') {
           this.player.seekTo(duration, true);
         }
       } else {
-        // Normal music playback - restore playback speed and volume
-        if (typeof this.player.getPlaybackRate === 'function' && this.player.getPlaybackRate() !== 1) {
-          this.player.setPlaybackRate(1);
-        }
-        if (typeof this.player.isMuted === 'function' && this.player.isMuted()) {
-          this.player.unMute();
+        if (this.isSuppressingAd) {
+          this.isSuppressingAd = false;
+          // Restore playback speed to normal (1.0)
+          if (typeof this.player.setPlaybackRate === 'function') {
+            this.player.setPlaybackRate(1);
+          }
+          // Restore audio
+          if (typeof this.player.unMute === 'function') {
+            this.player.unMute();
+          }
         }
       }
     } catch (e) {
-      // Ignore API errors during transient state transitions
+      // Safe fallback for transient state transitions
+    }
+  }
+
+  _startAdGuardTimer() {
+    if (this.adGuardInterval) return;
+    this.adGuardInterval = setInterval(() => {
+      this._checkAndSuppressAd();
+    }, 100);
+  }
+
+  _stopAdGuardTimer() {
+    if (this.adGuardInterval) {
+      clearInterval(this.adGuardInterval);
+      this.adGuardInterval = null;
     }
   }
 
@@ -299,6 +336,7 @@ export class YouTubePlayer {
    */
   destroy() {
     this._stopProgressTracking();
+    this._stopAdGuardTimer();
     if (this.player) {
       try {
         this.player.destroy();
