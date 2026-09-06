@@ -26,6 +26,10 @@ export class YouTubePlayer {
    * Load the YouTube IFrame API script
    * @returns {Promise} Resolves when API is ready
    */
+  /**
+   * Load the YouTube IFrame API script using privacy-enhanced domain
+   * @returns {Promise} Resolves when API is ready
+   */
   loadAPI() {
     return new Promise((resolve, reject) => {
       if (this.isAPILoaded && window.YT && window.YT.Player) {
@@ -34,7 +38,7 @@ export class YouTubePlayer {
       }
 
       // Check if script already exists
-      if (document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      if (document.querySelector('script[src*="youtube-nocookie.com/iframe_api"]') || document.querySelector('script[src*="youtube.com/iframe_api"]')) {
         const checkReady = setInterval(() => {
           if (window.YT && window.YT.Player) {
             clearInterval(checkReady);
@@ -51,9 +55,9 @@ export class YouTubePlayer {
         resolve();
       };
 
-      // Load the script
+      // Load the script from privacy-enhanced domain
       const script = document.createElement('script');
-      script.src = 'https://www.youtube.com/iframe_api';
+      script.src = 'https://www.youtube-nocookie.com/iframe_api';
       script.onerror = () => reject(new Error('Failed to load YouTube API'));
       document.head.appendChild(script);
     });
@@ -73,6 +77,7 @@ export class YouTubePlayer {
       }
 
       this.player = new YT.Player(this.containerId, {
+        host: 'https://www.youtube-nocookie.com',
         height: '100%',
         width: '100%',
         videoId: videoId,
@@ -84,7 +89,9 @@ export class YouTubePlayer {
           fs: 0,
           iv_load_policy: 3,
           playsinline: 1,
-          origin: window.location.origin
+          enablejsapi: 1,
+          origin: window.location.origin,
+          widget_referrer: window.location.origin
         },
         events: {
           onReady: (event) => {
@@ -104,9 +111,42 @@ export class YouTubePlayer {
   }
 
   /**
+   * Check for mobile/embedded ad state and auto-bypass
+   */
+  _checkAndSuppressAd() {
+    if (!this.player || !this.isReady) return;
+    try {
+      // YouTube IFrame API ad state checks
+      const isAd = (typeof this.player.getAdState === 'function' && this.player.getAdState() > 0) ||
+                   (typeof this.player.isAdPlaying === 'function' && this.player.isAdPlaying());
+      
+      if (isAd) {
+        // Mute ad audio and fast forward past the ad instantly
+        if (typeof this.player.mute === 'function') this.player.mute();
+        if (typeof this.player.setPlaybackRate === 'function') this.player.setPlaybackRate(16);
+        const duration = this.getDuration();
+        if (duration > 0 && typeof this.player.seekTo === 'function') {
+          this.player.seekTo(duration, true);
+        }
+      } else {
+        // Normal music playback - restore playback speed and volume
+        if (typeof this.player.getPlaybackRate === 'function' && this.player.getPlaybackRate() !== 1) {
+          this.player.setPlaybackRate(1);
+        }
+        if (typeof this.player.isMuted === 'function' && this.player.isMuted()) {
+          this.player.unMute();
+        }
+      }
+    } catch (e) {
+      // Ignore API errors during transient state transitions
+    }
+  }
+
+  /**
    * Handle player state changes
    */
   _handleStateChange(event) {
+    this._checkAndSuppressAd();
     switch (event.data) {
       case YT.PlayerState.PLAYING:
         this._startProgressTracking();
@@ -234,6 +274,7 @@ export class YouTubePlayer {
   _startProgressTracking() {
     this._stopProgressTracking();
     const track = () => {
+      this._checkAndSuppressAd();
       if (this.onProgress && this.player && this.isReady) {
         const current = this.getCurrentTime();
         const duration = this.getDuration();
